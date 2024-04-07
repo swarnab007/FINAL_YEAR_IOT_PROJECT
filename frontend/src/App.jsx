@@ -11,7 +11,7 @@ function App() {
     // Fetch step count data from server
     const fetchStepCount = async () => {
         try {
-            const response = await axios.get('https://git.heroku.com/iot.git/stepsdata');
+            const response = await axios.get('https://adsds-d13a7574abf3.herokuapp.com/stepsdata');
             console.log("Response=>",response);
             setStepCount(response.data.data.steps);
             setLastUpdated(response.data.data.lastUpdatedTimestamp);

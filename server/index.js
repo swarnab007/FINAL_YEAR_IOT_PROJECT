@@ -2,13 +2,17 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const databaseConnect =require("./config/databaseConnect");
-const mongoose = require("mongoose");
 const stepCount=require("./model/stepCountSchema");
+const cors = require("cors");
+require("dotenv").config();
 
 // Use bodyParser middleware to parse incoming requests
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-
+app.use(cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true
+}))
 databaseConnect.connect();
 // Endpoint to receive alerts from ESP32 device
 app.post('/stepCount',async (req, res) =>{
@@ -18,11 +22,11 @@ app.post('/stepCount',async (req, res) =>{
        if(steps==1){
            const existingDocument = await stepCount.findOne();
            if (!existingDocument) {
-               const data= await stepCount.create({steps:0});
+               const data= await stepCount.create({steps:0, lastUpdatedTimestamp: Date.now() });
                console.log("Initial step count document created",data);
            }
             //Update the existing document to increment the step count
-           const data=  await stepCount.updateOne({}, { $inc: { steps } });
+           const data=  await stepCount.updateOne({}, { $inc: { steps },lastUpdatedTimestamp: Date.now()  });
            console.log('Step count data updated in the database. New steps:', data);
 
            return res.status(200).json({

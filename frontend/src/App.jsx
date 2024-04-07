@@ -32,10 +32,10 @@ function App() {
         return () => clearInterval(interval);
     }, []);
   return (
-      <div className={"flex flex-row gap-10 items-center justify-center min-h-screen w-screen  bg-[#003C43] "}>
+      <div className={"flex lg:flex-row flex-col lg:gap-10 items-center justify-center min-h-screen w-screen  bg-[#003C43] "}>
           <div className={"p-10 flex flex-col items-start text-white text-[30px] justify-center  rounded-2xl"}>
-              <p >Team</p>
-              <p>Circuit Bruster</p>
+              <p className={"font-bold"}>Team</p>
+              <p className={"font-bold"}>Circuit Bruster</p>
           </div>
           <div className={"p-10 bg-[#77B0AA] text-black rounded-2xl"}>
               <div className={" flex flex-col gap-2 items-center"}>

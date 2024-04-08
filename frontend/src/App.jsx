@@ -27,7 +27,7 @@ function App() {
         // Poll for new data every 5 seconds
         const interval = setInterval(() => {
             fetchStepCount();
-        }, 5000);
+        }, 1000);
 
         return () => clearInterval(interval);
     }, []);

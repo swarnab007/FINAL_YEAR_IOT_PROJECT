@@ -13,7 +13,6 @@ import {
 } from 'chart.js';
 import {BASEURL} from "../utils/constant.js";
 
-
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -23,6 +22,7 @@ ChartJS.register(
     Tooltip,
     Legend
 );
+
 export const options = {
     responsive: true,
     plugins: {
@@ -37,54 +37,56 @@ function TemperatureHumidityChart() {
     const [chartData, setChartData] = useState({});
 
     useEffect(() => {
-        fetchData('hour'); // Fetch data for the default interval (1 hour)
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(`${BASEURL}/tempdata`);
+                const data = response.data;
+                console.log(data);
+                // Extract timestamps, humidity, and temperature data from the response
+                const labels = data.map(entry => {
+                    const timestamp = new Date(entry.timestamp);
+                    return timestamp.toLocaleString(); // Convert timestamp to localized string format
+                });
+                const humidityData = data.map(entry => entry.humidity);
+                const temperatureData = data.map(entry => entry.temperature);
+
+                // Set up chart data
+                setChartData({
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Humidity',
+                            data: humidityData,
+                            borderColor: 'blue',
+                            fill: false,
+                            yAxisID: 'humidity-axis'
+                        },
+                        {
+                            label: 'Temperature',
+                            data: temperatureData,
+                            borderColor: 'red',
+                            fill: false,
+                            yAxisID: 'temperature-axis'
+                        }
+                    ]
+                });
+            } catch (error) {
+                console.error('Error fetching chart data:', error);
+            }
+        };
+
+        fetchData(); // Fetch data initially
+
+        const interval = setInterval(fetchData, 5000); // Fetch data every 5 seconds
+
+        // Cleanup function to clear interval
+        return () => clearInterval(interval);
     }, []);
 
-    const fetchData = async (interval) => {
-        try {
-            const response = await axios.get(`${BASEURL}/tempdata`);
-            const data = response.data;
-
-            // Extract timestamps, humidity, and temperature data from the response
-            const labels = data.map(entry => {
-                const timestamp = new Date(entry.timestamp);
-                return timestamp.toLocaleString(); // Convert timestamp to localized string format
-            });
-            console.log(labels);// Assuming _id contains the timestamp
-            const humidityData = data.map(entry => entry.humidity);
-            const temperatureData = data.map(entry => entry.temperature);
-
-            // Set up chart data
-            setChartData({
-                labels: labels,
-                datasets: [
-                    {
-                        label: 'Humidity',
-                        data: humidityData,
-                        borderColor: 'blue',
-                        fill: false,
-                        yAxisID: 'humidity-axis'
-                    },
-                    {
-                        label: 'Temperature',
-                        data: temperatureData,
-                        borderColor: 'red',
-                        fill: false,
-                        yAxisID: 'temperature-axis'
-                    }
-                ]
-            });
-        } catch (error) {
-            console.error('Error fetching chart data:', error);
-        }
-    };
-
     return (
-        <div className={"p-10 w-full"}>
+        <div className={"p-10 w-full flex items-center justify-center"}>
             {/* Render two Line charts, one for humidity and one for temperature */}
-
-            <div className={"w-full"}>
-
+            <div style={{ width: '60%', backgroundColor: "#E3FEF7", display: "flex", justifyContent: "center", justifyItems: "center" }}>
                 <Line options={options} data={{
                     labels: chartData.labels,
                     datasets: [{

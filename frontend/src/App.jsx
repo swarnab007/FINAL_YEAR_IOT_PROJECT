@@ -1,76 +1,254 @@
-import React, { useState, useEffect } from 'react';
-import axios from "axios";
-import { CircularProgressbar } from 'react-circular-progressbar';
-import 'react-circular-progressbar/dist/styles.css';
-import { ToastContainer, toast } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';
-import './App.css';
-import TemperatureHumidityChart from "./component/Chart.jsx";
-import { BASEURL } from "./utils/constant.js";
+import "react-circular-progressbar/dist/styles.css";
+import temp from "./assets/temp.svg";
+import hum from "./assets/hum.svg";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+} from "chart.js";
+import { Line, Bar } from "react-chartjs-2";
+import "./App.css";
+
+// Register the required components and scales
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 
 function App() {
-    const [stepCount, setStepCount] = useState(0);
-    const [humidity, setHumidity] = useState(0);
-    const [temperature, setTemperature] = useState(0);
-    const [lastUpdated, setLastUpdated] = useState(null);
-    const [toastShown, setToastShown] = useState(false); // State to track whether toast has been shown
+  const temperature = 31;
+  const humidity = 38;
+  const ambientLight = 51;
 
-    const fetchTempData = async () => {
-        try {
-            const response = await axios.get(`${BASEURL}/tempdata`);
-            console.log("Response=>", response.data[0].humidity);
-            setHumidity(response.data[0].humidity);
-            const newTemperature = response.data[0].temperature;
-            if (!toastShown && newTemperature > 40 && newTemperature > temperature) {
-                // Temperature increased from 40 and toast hasn't been shown yet
-                toast.error("Temperature increased from 40!");
-                setToastShown(true); // Set toastShown to true to prevent showing again
-            }
-            setTemperature(newTemperature);
-            setLastUpdated(response.data[0].timestamp);
-            console.log(response.data[0].timestamp);
-        } catch (error) {
-            console.error('Error fetching step count data:', error);
-        }
-    };
+  const sensorData = [
+    { temp: 24, hum: 70, light: 20 },
+    { temp: 25, hum: 72, light: 25 },
+    { temp: 26, hum: 74, light: 30 },
+    { temp: 27, hum: 76, light: 35 },
+    { temp: 28, hum: 78, light: 40 },
+    { temp: 29, hum: 80, light: 45 },
+  ];
 
-    useEffect(() => {
-        // fetch temperature and humidity data
-        fetchTempData();
-
-        // Poll for new data every 7 seconds
-        const interval = setInterval(() => {
-            fetchTempData();
-        }, 5000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    return (
-        <div className={"flex lg:flex-col flex-col lg:gap-10 items-center justify-center min-h-screen w-screen  bg-[#003C43] "}>
-            <div className={"w-full flex justify-center items-center flex-col   gap-5 "}>
-                <div className={"flex justify-center items-center lg:flex-row flex-col  gap-5"}>
-                    <div className={"p-10 bg-[#77B0AA] text-black rounded-2xl h-full w-[50%]"}>
-                        <div className={" flex flex-col gap-2 items-center h-full w-full"}>
-                            <h2 className={" font-bold"}>Temperature </h2>
-                            <p className={"text-[30px]"}>{temperature} <span> °</span></p>
-                            <p className={"text-[15px]"}>Last Updated:</p>
-                            <p className={"text-[15px]"}> {lastUpdated ? new Date(lastUpdated).toLocaleString() : 'N/A'}</p>
-                        </div>
-                    </div>
-                    <div className={" flex flex-col p-4 gap-5 w-[40%]"}>
-                        <CircularProgressbar value={humidity} text={`${humidity}%`}/>
-                        <p className={"text-center font-bold text-white  text-[20px]"}>Humidity</p>
-                    </div>
-                </div>
-
-                <div className={"w-full "}>
-                    <TemperatureHumidityChart/>
-                </div>
+  return (
+    <div className="App">
+      <div className="container">
+        <h1>Sensor Dashboard For Livestock Monitoring System</h1>
+        <div className="card_container topbar">
+          <div className="card">
+            <div className="icon">
+              <img src={temp} alt="temp_icon" width="40vw" />
             </div>
-            <ToastContainer />
+            <div className="title">
+              <h2>Temperature</h2>
+            </div>
+            <div className="value">
+              <h2>{temperature}</h2>
+            </div>
+          </div>
+          <div className="card">
+            <div className="icon">
+              <img src={hum} alt="hum_icon" width="40vw" />
+            </div>
+            <div className="title">
+              <h2>Humidity</h2>
+            </div>
+            <div className="value">
+              <h2>{humidity}</h2>
+            </div>
+          </div>
+          <div className="card">
+            <div className="icon">
+              <img src={hum} alt="light_icon" width="40vw" />
+            </div>
+            <div className="title">
+              <h2>Ambient Light</h2>
+            </div>
+            <div className="value">
+              <h2>{ambientLight}</h2>
+            </div>
+          </div>
         </div>
-    )
+        <div className="card_container">
+          <div className="card">
+            <div className="chart">
+              <Line
+                data={{
+                  labels: [1, 2, 3, 4, 5, 6],
+                  datasets: [
+                    {
+                      label: "Temperature",
+                      data: sensorData.map((sensor) => sensor.temp),
+                      backgroundColor: "rgba(54, 162, 235, 0.2)",
+                      borderColor: "rgba(54, 162, 235, 1)",
+                      borderWidth: 1,
+                      fill: true,
+                    },
+                  ],
+                }}
+                height={250}
+                options={{
+                  responsive: true,
+                  responsiveAnimationDuration: 400,
+                  maintainAspectRatio: false,
+                  scales: {
+                    x: {
+                      grid: {
+                        display: false,
+                        color: "#666",
+                      },
+                      ticks: {
+                        color: "#999",
+                      },
+                    },
+                    y: {
+                      grid: {
+                        display: false,
+                        color: "#666",
+                      },
+                      ticks: {
+                        color: "#999",
+                      },
+                    },
+                  },
+                }}
+              />
+            </div>
+          </div>
+          <div className="card">
+            <div className="chart">
+              <Bar
+                data={{
+                  labels: [1, 2, 3, 4, 5, 6],
+                  datasets: [
+                    {
+                      label: "Humidity",
+                      data: sensorData.map((sensor) => sensor.hum),
+                      backgroundColor: [
+                        "rgba(255, 99, 132, 0.2)",
+                        "rgba(54, 162, 235, 0.2)",
+                        "rgba(255, 206, 86, 0.2)",
+                        "rgba(75, 192, 192, 0.2)",
+                        "rgba(153, 102, 255, 0.2)",
+                        "rgba(255, 159, 64, 0.2)",
+                      ],
+                      borderColor: [
+                        "rgba(255, 99, 132, 1)",
+                        "rgba(54, 162, 235, 1)",
+                        "rgba(255, 206, 86, 1)",
+                        "rgba(75, 192, 192, 1)",
+                        "rgba(153, 102, 255, 1)",
+                        "rgba(255, 159, 64, 1)",
+                      ],
+                      borderWidth: 1,
+                    },
+                  ],
+                }}
+                height={250}
+                options={{
+                  responsive: true,
+                  responsiveAnimationDuration: 400,
+                  maintainAspectRatio: false,
+                  scales: {
+                    x: {
+                      grid: {
+                        display: false,
+                        color: "#666",
+                      },
+                      ticks: {
+                        color: "#999",
+                      },
+                    },
+                    y: {
+                      grid: {
+                        display: false,
+                        color: "#666",
+                      },
+                      ticks: {
+                        color: "#999",
+                      },
+                    },
+                  },
+                }}
+              />
+            </div>
+          </div>
+          <div className="card">
+            <div className="chart">
+              <Line
+                data={{
+                  labels: [1, 2, 3, 4, 5, 6],
+                  datasets: [
+                    {
+                      label: "Ambient Light",
+                      data: sensorData.map((sensor) => sensor.light),
+                      backgroundColor: "rgba(75, 192, 192, 0.2)",
+                      borderColor: "rgba(75, 192, 192, 1)",
+                      borderWidth: 1,
+                      fill: true,
+                    },
+                    {
+                      label: "Temperature",
+                      data: sensorData.map((sensor) => sensor.temp),
+                      backgroundColor: "rgba(54, 162, 235, 0.1)",
+                      borderColor: "rgba(54, 162, 235, 1)",
+                      borderWidth: 1,
+                      fill: true,
+                    },
+                  ],
+                }}
+                height={250}
+                options={{
+                  responsive: true,
+                  responsiveAnimationDuration: 400,
+                  maintainAspectRatio: false,
+                  scales: {
+                    x: {
+                      grid: {
+                        display: false,
+                        color: "#666",
+                      },
+                      ticks: {
+                        color: "#999",
+                      },
+                    },
+                    y: {
+                      grid: {
+                        display: false,
+                        color: "#666",
+                      },
+                      ticks: {
+                        color: "#999",
+                      },
+                    },
+                  },
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer>
+        <a href="https://www.arduino.cc/">Documentation</a>
+        &nbsp;&nbsp;&nbsp;.&nbsp;&nbsp;&nbsp;
+        <a href="https://www.npmjs.com/package/react-chartjs-2">Reference</a>
+        <p>&copy; J C, 2023</p>
+      </footer>
+    </div>
+  );
 }
 
 export default App;

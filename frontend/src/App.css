@@ -2,3 +2,79 @@
   margin: 0;
   padding: 0;
 }
+
+body {
+  background-color: #2f2f2f;
+  color: #ccc;
+  font-family: Arial, sans-serif;
+}
+
+.App {
+  text-align: center;
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+}
+
+.container h1 {
+  margin-bottom: 40px;
+  color: #fff;
+  font-size: 30px;
+}
+
+.card_container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.topbar {
+  margin-bottom: 40px;
+}
+
+.card {
+  background-color: #3f3f3f;
+  border-radius: 10px;
+  padding: 20px;
+  width: 30%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.icon img {
+  display: block;
+  margin: 0 auto;
+}
+
+.title h2 {
+  margin: 10px 0;
+  color: #fff;
+}
+
+.value h2 {
+  margin: 0;
+  color: #fff;
+}
+
+.chart {
+  padding: 10px;
+  background-color: #3f3f3f;
+  border-radius: 10px;
+}
+
+footer {
+  margin-top: 20px;
+  color: #ccc;
+}
+
+footer a {
+  color: #ccc;
+  text-decoration: none;
+  margin: 0 10px;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
